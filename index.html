@@ -1,12 +1,986 @@
 <!DOCTYPE html>
-<html lang="uz">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Umumiy bilim testi</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="uz" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Bilim Sholuni - Test va Reyting Platformasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            navy: '#1e293b',
+                            blue: '#1e3a8a',
+                            accent: '#f97316',
+                            teal: '#0d9488',
+                            light: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-100 flex flex-col md:flex-row overflow-x-hidden">
+
+    <!-- Desktop Sidebar -->
+    <aside class="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-6 shrink-0 justify-between">
+        <div>
+            <!-- Logo Brand -->
+            <div class="flex items-center space-x-3 mb-10">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-teal-500 flex items-center justify-center font-bold text-white shadow-lg text-lg">
+                    BS
+                </div>
+                <div>
+                    <span class="text-lg font-bold tracking-tight block">BILING</span>
+                    <span class="text-xs text-orange-400 font-medium tracking-wider">SHOLUNI</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-2">
+                <button onclick="switchTab('home')" id="desktop-nav-home" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all bg-blue-600 text-white shadow-md shadow-blue-900/30">
+                    <i class="fa-solid fa-house w-5"></i>
+                    <span>Bosh sahifa</span>
+                </button>
+                <button onclick="switchTab('tests')" id="desktop-nav-tests" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-list-check w-5"></i>
+                    <span>Testlar</span>
+                </button>
+                <button onclick="switchTab('leaderboard')" id="desktop-nav-leaderboard" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-trophy w-5"></i>
+                    <span>Reyting</span>
+                </button>
+                <button onclick="switchTab('profile')" id="desktop-nav-profile" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-user w-5"></i>
+                    <span>Profil</span>
+                </button>
+                <button onclick="switchTab('settings')" id="desktop-nav-settings" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-gear w-5"></i>
+                    <span>Sozlamalar</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- User Quick Card in Sidebar -->
+        <div class="pt-6 border-t border-slate-800 flex items-center space-x-3">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-orange-500">
+            <div class="overflow-hidden">
+                <h4 class="text-sm font-semibold truncate">Sardor B.</h4>
+                <p id="side-points" class="text-xs text-orange-400 font-medium">0 pts</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <header class="md:hidden flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 to-teal-500 flex items-center justify-center font-bold text-white text-sm">
+                BS
+            </div>
+            <span class="font-bold text-base tracking-tight">Bilim Sholuni</span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="switchTab('profile')" class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Avatar" class="w-6 h-6 rounded-full object-cover">
+                <span class="text-xs font-semibold">Sardor B.</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <main class="flex-1 flex flex-col min-h-screen bg-slate-950 pb-20 md:pb-0 overflow-y-auto">
+
+        <!-- Top Header for Desktop -->
+        <div class="hidden md:flex items-center justify-between px-8 py-5 bg-slate-900/60 backdrop-blur border-b border-slate-800 sticky top-0 z-30">
+            <div class="relative w-96">
+                <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                <input type="text" placeholder="Testlar, fanlar yoki mavzularni qidirish..." class="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-orange-500 transition-colors">
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="showNotification('Bildirishnomalar mavjud emas', 'info')" class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition-colors relative">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-orange-500"></span>
+                </button>
+                <div class="flex items-center space-x-3 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-xl">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Avatar" class="w-7 h-7 rounded-full object-cover">
+                    <span class="text-sm font-medium">Sardor B.</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: HOME DASHBOARD -->
+        <div id="tab-home" class="tab-content flex-1 p-4 md:p-8 space-y-6 animate-fade-in">
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-3xl p-6 md:p-8 border border-blue-800/50 relative overflow-hidden shadow-2xl">
+                <div class="absolute right-0 bottom-0 opacity-15 md:opacity-35 pointer-events-none translate-x-4 translate-y-4">
+                    <i class="fa-solid fa-graduation-cap text-9xl md:text-[180px] text-orange-400"></i>
+                </div>
+                <div class="relative z-10 max-w-xl">
+                    <span class="px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-semibold tracking-wide uppercase inline-block mb-3 border border-orange-500/30">Umumiy Bilimlar Akademiyasi</span>
+                    <h1 class="text-2xl md:text-4xl font-bold tracking-tight mb-2 text-white">Xush kelibsiz, Sardor! O'z bilimingizni sinang</h1>
+                    <p class="text-slate-300 text-sm md:text-base mb-6">Turli xil qiziqarli fanlar va umumiy aralash testlar orqali darajangizni oshiring va reytingda 1-o'rinni egallang.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="startTest('Umumiy Testlar')" class="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/25 transition-all transform hover:-translate-y-0.5 text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Tezkor test boshlash</span>
+                        </button>
+                        <button onclick="switchTab('tests')" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700 font-semibold px-6 py-3 rounded-xl transition-all text-sm">
+                            Barcha testlar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg md:text-xl font-bold text-white">Test Kategoriyalari</h2>
+                    <button onclick="switchTab('tests')" class="text-xs font-semibold text-orange-400 hover:underline">Barchasini ko'rish</button>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Category 1 -->
+                    <div onclick="startTest('Umumiy Testlar')" class="bg-slate-900 border border-slate-800 hover:border-orange-500/50 rounded-2xl p-5 transition-all cursor-pointer group flex flex-col justify-between shadow-md">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h3 class="font-bold text-white text-base mb-1">Umumiy Testlar</h3>
+                            <p class="text-xs text-slate-400 mb-4">10 savol</p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-orange-400">Boshlash</span>
+                            <i class="fa-solid fa-arrow-right text-xs text-orange-400 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div onclick="startTest('Tarix va Geografiya')" class="bg-slate-900 border border-slate-800 hover:border-blue-500/50 rounded-2xl p-5 transition-all cursor-pointer group flex flex-col justify-between shadow-md">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-earth-americas"></i>
+                            </div>
+                            <h3 class="font-bold text-white text-base mb-1">Tarix va Geografiya</h3>
+                            <p class="text-xs text-slate-400 mb-4">10 savol</p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-blue-400">Boshlash</span>
+                            <i class="fa-solid fa-arrow-right text-xs text-blue-400 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div onclick="startTest('Fan va Texnika')" class="bg-slate-900 border border-slate-800 hover:border-teal-500/50 rounded-2xl p-5 transition-all cursor-pointer group flex flex-col justify-between shadow-md">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <h3 class="font-bold text-white text-base mb-1">Fan va Texnika</h3>
+                            <p class="text-xs text-slate-400 mb-4">10 savol</p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-teal-400">Boshlash</span>
+                            <i class="fa-solid fa-arrow-right text-xs text-teal-400 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+
+                    <!-- Category 4 -->
+                    <div onclick="startTest('San\'at va Adabiyot')" class="bg-slate-900 border border-slate-800 hover:border-purple-500/50 rounded-2xl p-5 transition-all cursor-pointer group flex flex-col justify-between shadow-md">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-palette"></i>
+                            </div>
+                            <h3 class="font-bold text-white text-base mb-1">San'at va Adabiyot</h3>
+                            <p class="text-xs text-slate-400 mb-4">6 savol</p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-purple-400">Boshlash</span>
+                            <i class="fa-solid fa-arrow-right text-xs text-purple-400 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Grid: My Stats & Quick Leaderboard Preview -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Progress Box -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-white text-base">Mening Natijalarim</h3>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-teal-500/10 text-teal-400 font-semibold">Faol</span>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                    <span>Umumiy Testlar bajarilishi</span>
+                                    <span class="text-white font-medium">78%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2">
+                                    <div class="bg-orange-500 h-2 rounded-full" style="width: 78%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                                    <span>Tarix va Geografiya</span>
+                                    <span class="text-white font-medium">92%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 pt-6 mt-6 border-t border-slate-800 text-center">
+                        <div>
+                            <span class="text-xs text-slate-400 block mb-1">O'rin (Rank)</span>
+                            <span id="stat-rank" class="text-lg font-bold text-white">—</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block mb-1">Ballar</span>
+                            <span id="stat-points" class="text-lg font-bold text-orange-400">0</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block mb-1">Testlar</span>
+                            <span id="stat-tests" class="text-lg font-bold text-teal-400">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Widget -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-white text-base">Reyting Jadvali</h3>
+                            <button onclick="switchTab('leaderboard')" class="text-xs text-orange-400 font-semibold hover:underline">Barchasi</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center">1</span>
+                                    <span class="text-sm font-semibold text-white">Sardor B.</span>
+                                </div>
+                                <span class="text-xs font-bold text-amber-400">4950 pts</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">2</span>
+                                    <span class="text-sm font-semibold text-slate-200">Dilnoza M.</span>
+                                </div>
+                                <span class="text-xs font-bold text-slate-400">4710 pts</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/60">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center">3</span>
+                                    <span class="text-sm font-semibold text-slate-200">Aziz R.</span>
+                                </div>
+                                <span class="text-xs font-bold text-slate-400">4530 pts</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('leaderboard')" class="w-full mt-4 bg-slate-800 hover:bg-slate-700 font-medium py-2.5 rounded-xl text-xs transition-colors text-center">
+                        Reytingni to'liq ko'rish
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: TESTS CATALOG -->
+        <div id="tab-tests" class="tab-content hidden flex-1 p-4 md:p-8 space-y-6 animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-white mb-1">Mavjud Testlar</h1>
+                    <p class="text-slate-400 text-sm">O'zingizga qiziqarli bo'lgan fan va mavzuni tanlang.</p>
+                </div>
+                <div class="flex space-x-2 overflow-x-auto pb-2 md:pb-0">
+                    <button class="px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-xs whitespace-nowrap">Barchasi</button>
+                    <button class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 font-medium text-xs whitespace-nowrap">Tarix</button>
+                    <button class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 font-medium text-xs whitespace-nowrap">Fan va Texnika</button>
+                    <button class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 font-medium text-xs whitespace-nowrap">Adabiyot</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Test Card 1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-md">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 text-xs font-semibold">Umumiy Bilim</span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i> 5 daqiqa</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">O'zbekiston tarixi va madaniyati</h3>
+                        <p class="text-xs text-slate-400 mb-6">Qadimiy davrlardan bugungi kungacha bo'lgan muhim tarixiy sanalar va shaxslar bo'yicha test.</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-4 pb-4 border-t border-slate-800 pt-4">
+                            <span>Savollar: 6 ta</span>
+                            <span class="text-teal-400 font-semibold">+60 ball gacha</span>
+                        </div>
+                        <button onclick="startTest('O\'zbekiston tarixi va madaniyati')" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-orange-500/20">
+                            Testni boshlash
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Test Card 2 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-md">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold">Geografiya</span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i> 5 daqiqa</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Jahon mamlakatlari va poytaxtlari</h3>
+                        <p class="text-xs text-slate-400 mb-6">Dunyodagi davlatlar, ularning geografik joylashuvi va poytaxtlarini qanchalik bilasiz?</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-4 pb-4 border-t border-slate-800 pt-4">
+                            <span>Savollar: 6 ta</span>
+                            <span class="text-teal-400 font-semibold">+60 ball gacha</span>
+                        </div>
+                        <button onclick="startTest('Jahon mamlakatlari va poytaxtlari')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-blue-600/20">
+                            Testni boshlash
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Test Card 3 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-md">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 text-xs font-semibold">Fan va Texnika</span>
+                            <span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i> 5 daqiqa</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">Zamonaviy texnologiyalar va IT</h3>
+                        <p class="text-xs text-slate-400 mb-6">Dasturlash, sun'iy intellekt va zamonaviy gadgetlar olami bo'yicha qiziqarli savollar.</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-4 pb-4 border-t border-slate-800 pt-4">
+                            <span>Savollar: 6 ta</span>
+                            <span class="text-teal-400 font-semibold">+60 ball gacha</span>
+                        </div>
+                        <button onclick="startTest('Zamonaviy texnologiyalar va IT')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-lg shadow-teal-600/20">
+                            Testni boshlash
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: LEADERBOARD -->
+        <div id="tab-leaderboard" class="tab-content hidden flex-1 p-4 md:p-8 space-y-6 animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-white mb-1">Reyting Jadvali</h1>
+                    <p class="text-slate-400 text-sm">Eng faol va bilimdon foydalanuvchilar ro'yxati.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-xs">Haftalik</button>
+                    <button class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 font-medium text-xs">Oylik</button>
+                    <button class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 font-medium text-xs">Barcha vaqt</button>
+                </div>
+            </div>
+
+            <!-- Top 3 Podium Cards -->
+            <div class="grid grid-cols-3 gap-3 md:gap-6 pt-4">
+                <!-- 2nd Place -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 text-center flex flex-col items-center justify-end relative mt-6 shadow-md">
+                    <div class="absolute -top-5 w-10 h-10 rounded-full bg-slate-400 text-slate-950 font-bold flex items-center justify-center border-4 border-slate-950 shadow-lg">2</div>
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" alt="Dilnoza" class="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-slate-400 mb-3">
+                    <h3 class="font-bold text-white text-sm md:text-base truncate w-full">Dilnoza M.</h3>
+                    <p class="text-xs text-slate-400 mb-2">Toshkent sh.</p>
+                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-bold text-xs">4,710 pts</span>
+                </div>
+
+                <!-- 1st Place -->
+                <div class="bg-gradient-to-b from-amber-500/10 to-slate-900 border border-amber-500/40 rounded-2xl p-4 md:p-6 text-center flex flex-col items-center justify-end relative shadow-xl">
+                    <div class="absolute -top-7 w-12 h-12 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center border-4 border-slate-950 shadow-lg text-lg">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Sardor" class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-amber-500 mb-3 shadow-lg shadow-amber-500/20">
+                    <h3 class="font-bold text-white text-sm md:text-base truncate w-full">Sardor B.</h3>
+                    <p class="text-xs text-orange-400 mb-2">Farg'ona v.</p>
+                    <span class="inline-block px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 font-bold text-xs border border-amber-500/30">4,950 pts</span>
+                </div>
+
+                <!-- 3rd Place -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 text-center flex flex-col items-center justify-end relative mt-6 shadow-md">
+                    <div class="absolute -top-5 w-10 h-10 rounded-full bg-amber-700 text-white font-bold flex items-center justify-center border-4 border-slate-950 shadow-lg">3</div>
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" alt="Aziz" class="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-amber-700 mb-3">
+                    <h3 class="font-bold text-white text-sm md:text-base truncate w-full">Aziz R.</h3>
+                    <p class="text-xs text-slate-400 mb-2">Samarqand sh.</p>
+                    <span class="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-300 font-bold text-xs">4,530 pts</span>
+                </div>
+            </div>
+
+            <!-- Full Leaderboard List -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+                <div class="p-4 border-b border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-400">
+                    <span>Foydalanuvchi</span>
+                    <span>Ballar</span>
+                </div>
+                <div class="divide-y divide-slate-800/60">
+                    <div class="flex items-center justify-between p-4 bg-slate-800/40">
+                        <div class="flex items-center space-x-4">
+                            <span class="w-6 text-center font-bold text-amber-400 text-sm">1</span>
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-9 h-9 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Sardor B. (Siz)</h4>
+                                <span class="text-xs text-slate-400">Faol ishtirokchi</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-orange-400 text-sm">4,950 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center space-x-4">
+                            <span class="w-6 text-center font-bold text-slate-300 text-sm">2</span>
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" class="w-9 h-9 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Dilnoza M.</h4>
+                                <span class="text-xs text-slate-400">Toshkent sh.</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-200 text-sm">4,710 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center space-x-4">
+                            <span class="w-6 text-center font-bold text-slate-300 text-sm">3</span>
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" class="w-9 h-9 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Aziz R.</h4>
+                                <span class="text-xs text-slate-400">Samarqand sh.</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-200 text-sm">4,530 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center space-x-4">
+                            <span class="w-6 text-center font-bold text-slate-400 text-sm">4</span>
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop&crop=faces" class="w-9 h-9 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Nodira K.</h4>
+                                <span class="text-xs text-slate-400">Buxoro v.</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-200 text-sm">4,280 pts</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center space-x-4">
+                            <span class="w-6 text-center font-bold text-slate-400 text-sm">5</span>
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" class="w-9 h-9 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-sm font-semibold text-white">Jasur A.</h4>
+                                <span class="text-xs text-slate-400">Xorazm v.</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-slate-200 text-sm">4,100 pts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: PROFILE -->
+        <div id="tab-profile" class="tab-content hidden flex-1 p-4 md:p-8 space-y-6 animate-fade-in">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-md">
+                <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=faces" alt="Sardor B." class="w-24 h-24 rounded-full object-cover border-4 border-orange-500 shadow-xl">
+                    <div class="text-center md:text-left">
+                        <div class="flex items-center justify-center md:justify-start space-x-3 mb-1">
+                            <h1 class="text-2xl font-bold text-white">Sardor B.</h1>
+                            <span class="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-400 text-xs font-semibold">Pro O'quvchi</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-3">sardor.bek@example.com • Farg'ona viloyati</p>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2">
+                            <span class="px-3 py-1 rounded-xl bg-slate-800 text-xs font-medium text-slate-300"><i class="fa-solid fa-medal text-amber-400 mr-1.5"></i> 142-o'rin</span>
+                            <span class="px-3 py-1 rounded-xl bg-slate-800 text-xs font-medium text-slate-300"><i class="fa-solid fa-star text-orange-400 mr-1.5"></i> 4,950 Ball</span>
+                            <span class="px-3 py-1 rounded-xl bg-slate-800 text-xs font-medium text-slate-300"><i class="fa-solid fa-circle-check text-teal-400 mr-1.5"></i> 48 Test</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <span class="text-xs text-slate-400 block mb-1">To'g'ri javoblar ulushi</span>
+                    <h3 class="text-2xl font-bold text-teal-400 mb-2">84.5%</h3>
+                    <p class="text-xs text-slate-400">Jami 960 ta savoldan 812 tasi to'g'ri topilgan.</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <span class="text-xs text-slate-400 block mb-1">Sarflangan vaqt</span>
+                    <h3 class="text-2xl font-bold text-blue-400 mb-2">14 soat</h3>
+                    <p class="text-xs text-slate-400">Platformada faol o'qish vaqti.</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <span class="text-xs text-slate-400 block mb-1">Sertifikatlar</span>
+                    <h3 class="text-2xl font-bold text-orange-400 mb-2">3 ta</h3>
+                    <p class="text-xs text-slate-400">Muvaffaqiyatli yakunlangan modullar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: SETTINGS -->
+        <div id="tab-settings" class="tab-content hidden flex-1 p-4 md:p-8 space-y-6 animate-fade-in">
+            <h1 class="text-2xl font-bold text-white mb-1">Sozlamalar</h1>
+            <p class="text-slate-400 text-sm mb-6">Hisobingiz va ilova sozlamalarini boshqaring.</p>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 max-w-2xl">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">Bildirishnomalar</h4>
+                        <p class="text-xs text-slate-400">Yangi testlar haqida xabarnoma olish</p>
+                    </div>
+                    <input type="checkbox" checked class="w-5 h-5 accent-orange-500 rounded cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                    <div>
+                        <h4 class="text-sm font-semibold text-white">Tungi rejim (Dark Mode)</h4>
+                        <p class="text-xs text-slate-400">Ko'zni qamashtirmaydigan qorong'i tema</p>
+                    </div>
+                    <input type="checkbox" checked class="w-5 h-5 accent-orange-500 rounded cursor-pointer">
+                </div>
+                <div>
+                    <button onclick="showNotification('Sozlamalar saqlandi!', 'success')" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-xl text-xs transition-colors shadow-lg shadow-orange-500/20">
+                        O'zgarishlarni saqlash
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: ACTIVE TEST SESSION -->
+        <div id="tab-test-session" class="tab-content hidden flex-1 p-4 md:p-8 space-y-6 animate-fade-in max-w-4xl mx-auto w-full">
+            <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-2xl p-4">
+                <button onclick="switchTab('home')" class="text-xs font-semibold text-slate-400 hover:text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Chiqish</span>
+                </button>
+                <div id="test-category-title" class="font-bold text-white text-sm md:text-base">Umumiy Bilimlar Testi</div>
+                <div class="flex items-center space-x-2 bg-orange-500/10 border border-orange-500/20 px-3 py-1 rounded-xl text-orange-400 text-xs font-semibold">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="test-timer">15:00</span>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="question-card" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
+                <div class="flex items-center justify-between text-xs text-slate-400 pb-4 border-b border-slate-800">
+                    <span id="question-counter">1-savol / 10</span>
+                    <span class="text-teal-400 font-semibold">10 ball</span>
+                </div>
+
+                <h3 id="question-text" class="text-lg md:text-xl font-bold text-white">
+                    Savol yuklanmoqda...
+                </h3>
+
+                <!-- Options List -->
+                <div id="options-container" class="space-y-3 pt-2">
+                    <!-- Options injected dynamically via JS -->
+                </div>
+
+                <div class="flex items-center justify-between pt-6 border-t border-slate-800">
+                    <button onclick="prevQuestion()" id="prev-btn" class="px-5 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700 transition-colors disabled:opacity-40">
+                        Oldingi
+                    </button>
+                    <button onclick="nextQuestion()" id="next-btn" class="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs transition-colors shadow-lg shadow-orange-500/25">
+                        Keyingi savol
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Card -->
+            <div id="result-box" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-white mb-1">Test yakunlandi</h3>
+                    <p id="result-summary" class="text-sm text-slate-400"></p>
+                </div>
+                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-800">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">To'g'ri javob</span>
+                        <span id="result-correct" class="text-lg font-bold text-teal-400">0</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">Natija</span>
+                        <span id="result-percent" class="text-lg font-bold text-white">0%</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">Ball</span>
+                        <span id="result-points" class="text-lg font-bold text-orange-400">0</span>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                    <button onclick="startTest(currentTestTitle)" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs transition-colors shadow-lg shadow-orange-500/25">Qayta topshirish</button>
+                    <button onclick="switchTab('home')" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700 transition-colors">Bosh sahifa</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 px-6 py-3 flex items-center justify-between z-40">
+        <button onclick="switchTab('home')" id="mob-nav-home" class="flex flex-col items-center space-y-1 text-orange-500">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] font-medium">Asosiy</span>
+        </button>
+        <button onclick="switchTab('tests')" id="mob-nav-tests" class="flex flex-col items-center space-y-1 text-slate-400">
+            <i class="fa-solid fa-list-check text-lg"></i>
+            <span class="text-[10px] font-medium">Testlar</span>
+        </button>
+        <button onclick="switchTab('leaderboard')" id="mob-nav-leaderboard" class="flex flex-col items-center space-y-1 text-slate-400">
+            <i class="fa-solid fa-trophy text-lg"></i>
+            <span class="text-[10px] font-medium">Reyting</span>
+        </button>
+        <button onclick="switchTab('profile')" id="mob-nav-profile" class="flex flex-col items-center space-y-1 text-slate-400">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[10px] font-medium">Profil</span>
+        </button>
+    </nav>
+
+    <!-- Custom Notification Toast -->
+    <div id="notification-toast" class="fixed bottom-20 right-4 md:bottom-6 md:right-6 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3">
+        <div id="toast-icon" class="w-7 h-7 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-info"></i>
+        </div>
+        <div>
+            <h5 id="toast-title" class="text-xs font-bold">Ma'lumot</h5>
+            <p id="toast-desc" class="text-[11px] text-slate-400">Xabar matni...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        function switchTab(tabId) {
+            if (tabId !== 'test-session') stopTimer();
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(t => t.classList.add('hidden'));
+
+            const target = document.getElementById('tab-' + tabId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            const desktopNavs = ['home', 'tests', 'leaderboard', 'profile', 'settings'];
+            desktopNavs.forEach(nav => {
+                const el = document.getElementById('desktop-nav-' + nav);
+                if (el) {
+                    if (nav === tabId) {
+                        el.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all bg-blue-600 text-white shadow-md shadow-blue-900/30";
+                    } else {
+                        el.className = "w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-slate-400 hover:bg-slate-800 hover:text-white";
+                    }
+                }
+            });
+
+            const mobNavs = ['home', 'tests', 'leaderboard', 'profile'];
+            mobNavs.forEach(nav => {
+                const el = document.getElementById('mob-nav-' + nav);
+                if (el) {
+                    if (nav === tabId) {
+                        el.className = "flex flex-col items-center space-y-1 text-orange-500";
+                    } else {
+                        el.className = "flex flex-col items-center space-y-1 text-slate-400";
+                    }
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notification-toast');
+            const titleEl = document.getElementById('toast-title');
+            const descEl = document.getElementById('toast-desc');
+            const iconEl = document.getElementById('toast-icon');
+
+            descEl.textContent = message;
+            if (type === 'success') {
+                titleEl.textContent = "Muvaffaqiyatli";
+                iconEl.className = "w-7 h-7 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-sm font-bold";
+                iconEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                titleEl.textContent = "Eslatma";
+                iconEl.className = "w-7 h-7 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm font-bold";
+                iconEl.innerHTML = '<i class="fa-solid fa-bell"></i>';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        const QUESTION_BANK = {
+            tarix: [
+                { question: "O'zbekiston Respublikasining Konstitutsiyasi qachon qabul qilingan?", options: ["1991-yil 31-avgust", "1992-yil 8-dekabr", "1993-yil 2-iyul", "1995-yil 30-avgust"], correct: 1 },
+                { question: "Amir Temur qaysi yilda tug'ilgan?", options: ["1256", "1336", "1370", "1405"], correct: 1 },
+                { question: "Mirzo Ulug'bek rasadxonasi qaysi shaharda qurilgan?", options: ["Buxoro", "Xiva", "Samarqand", "Toshkent"], correct: 2 },
+                { question: "Alisher Navoiy qaysi shaharda tug'ilgan?", options: ["Hirot", "Samarqand", "Buxoro", "Shahrisabz"], correct: 0 },
+                { question: "Muhammad al-Xorazmiy qaysi fanning asoschisi hisoblanadi?", options: ["Kimyo", "Algebra", "Tibbiyot", "Astronomiya"], correct: 1 },
+                { question: "Ikkinchi jahon urushi qaysi yilda tugagan?", options: ["1939", "1943", "1945", "1950"], correct: 2 }
+            ],
+            geo: [
+                { question: "Dunyodagi eng katta okean qaysi?", options: ["Atlantika", "Hind", "Shimoliy Muz", "Tinch"], correct: 3 },
+                { question: "Yaponiyaning poytaxti qaysi shahar?", options: ["Osaka", "Tokio", "Kioto", "Nagoya"], correct: 1 },
+                { question: "Orol dengizi qaysi ikki davlat hududida joylashgan?", options: ["O'zbekiston va Qozog'iston", "O'zbekiston va Turkmaniston", "Qozog'iston va Qirg'iziston", "Tojikiston va O'zbekiston"], correct: 0 },
+                { question: "Avstraliyaning poytaxti qaysi shahar?", options: ["Sidney", "Melburn", "Kanberra", "Pert"], correct: 2 },
+                { question: "Dunyodagi eng baland tog' cho'qqisi qaysi?", options: ["Elbrus", "Jomolungma (Everest)", "Kilimanjaro", "Monblan"], correct: 1 },
+                { question: "Misr piramidalari qaysi daryo bo'yida joylashgan?", options: ["Nil", "Amudaryo", "Dunay", "Yangtsi"], correct: 0 }
+            ],
+            fan: [
+                { question: "Suvning kimyoviy formulasi qanday?", options: ["CO2", "H2O", "O2", "NaCl"], correct: 1 },
+                { question: "Yorug'likning vakuumdagi tezligi taxminan qancha?", options: ["30 000 km/s", "150 000 km/s", "300 000 km/s", "1 000 000 km/s"], correct: 2 },
+                { question: "Quyosh tizimidagi eng katta sayyora qaysi?", options: ["Saturn", "Yupiter", "Neptun", "Yer"], correct: 1 },
+                { question: "Inson tanasidagi eng katta organ qaysi?", options: ["Yurak", "Jigar", "Teri", "O'pka"], correct: 2 },
+                { question: "Havoning eng katta qismini qaysi gaz tashkil qiladi?", options: ["Kislorod", "Azot", "Karbonat angidrid", "Vodorod"], correct: 1 },
+                { question: "Tovush qaysi muhitda eng tez tarqaladi?", options: ["Havoda", "Vakuumda", "Suvda", "Po'latda"], correct: 3 }
+            ],
+            it: [
+                { question: "Python dasturlash tili qaysi yilda yaratilgan?", options: ["1985", "1991", "1995", "2000"], correct: 1 },
+                { question: "HTML nima uchun ishlatiladi?", options: ["Veb-sahifa tuzilmasini yaratish", "Ma'lumotlar bazasini boshqarish", "Rasmlarni tahrirlash", "Videolarni siqish"], correct: 0 },
+                { question: "CPU qisqartmasi nimani anglatadi?", options: ["Markaziy protsessor", "Xotira bloki", "Video karta", "Ta'minot bloki"], correct: 0 },
+                { question: "1 bayt necha bitdan iborat?", options: ["4", "8", "16", "32"], correct: 1 },
+                { question: "Quyidagilardan qaysi biri operatsion tizim?", options: ["Excel", "Chrome", "Windows", "Photoshop"], correct: 2 },
+                { question: "AI qisqartmasi nimani anglatadi?", options: ["Avtomatik internet", "Sun'iy intellekt", "Ilg'or interfeys", "Analog ma'lumot"], correct: 1 }
+            ],
+            adabiyot: [
+                { question: "Alisher Navoiyning \"Xamsa\" asari nechta dostondan iborat?", options: ["3", "4", "5", "7"], correct: 2 },
+                { question: "\"O'tkan kunlar\" romani muallifi kim?", options: ["Cho'lpon", "Abdulla Qodiriy", "Oybek", "G'afur G'ulom"], correct: 1 },
+                { question: "\"Hamlet\" tragediyasi muallifi kim?", options: ["Vilyam Shekspir", "Lev Tolstoy", "Viktor Gyugo", "Iogann Gyote"], correct: 0 },
+                { question: "\"Sariq devni minib\" asari muallifi kim?", options: ["Abdulla Oripov", "Xudoyberdi To'xtaboyev", "Erkin Vohidov", "Said Ahmad"], correct: 1 },
+                { question: "\"Mona Liza\" rasmining muallifi kim?", options: ["Mikelanjelo", "Rafael", "Leonardo da Vinchi", "Pikasso"], correct: 2 },
+                { question: "\"Boburnoma\" asari muallifi kim?", options: ["Alisher Navoiy", "Zahiriddin Muhammad Bobur", "Mirzo Ulug'bek", "Abu Rayhon Beruniy"], correct: 1 }
+            ]
+        };
+
+        const TEST_MAP = {
+            'Umumiy Testlar': { banks: ['tarix', 'geo', 'fan', 'it', 'adabiyot'], count: 10 },
+            'Tarix va Geografiya': { banks: ['tarix', 'geo'], count: 10 },
+            'Fan va Texnika': { banks: ['fan', 'it'], count: 10 },
+            "San'at va Adabiyot": { banks: ['adabiyot'], count: 6 },
+            "O'zbekiston tarixi va madaniyati": { banks: ['tarix'], count: 6 },
+            'Jahon mamlakatlari va poytaxtlari': { banks: ['geo'], count: 6 },
+            'Zamonaviy texnologiyalar va IT': { banks: ['it'], count: 6 }
+        };
+
+        const POINTS_PER_CORRECT = 10;
+        const SECONDS_PER_QUESTION = 45;
+
+        let currentTestTitle = '';
+        let currentQuestionIndex = 0;
+        let selectedAnswers = {};
+        let activeQuestions = [];
+        let timerId = null;
+        let secondsLeft = 0;
+        let stats = { points: 0, tests: 0 };
+
+        try {
+            const saved = JSON.parse(localStorage.getItem('bilim_stats') || 'null');
+            if (saved && typeof saved.points === 'number' && typeof saved.tests === 'number') stats = saved;
+        } catch (e) {}
+
+        function saveStats() {
+            try { localStorage.setItem('bilim_stats', JSON.stringify(stats)); } catch (e) {}
+        }
+
+        function renderStats() {
+            document.getElementById('stat-points').textContent = stats.points.toLocaleString('en-US');
+            document.getElementById('stat-tests').textContent = stats.tests;
+            document.getElementById('side-points').textContent = stats.points + ' pts';
+        }
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function buildQuestions(title) {
+            const cfg = TEST_MAP[title] || TEST_MAP['Umumiy Testlar'];
+            let pool = [];
+            cfg.banks.forEach(b => { pool = pool.concat(QUESTION_BANK[b]); });
+            return shuffle(pool).slice(0, cfg.count).map(q => {
+                const opts = shuffle(q.options.map((text, i) => ({ text, ok: i === q.correct })));
+                return { question: q.question, options: opts.map(o => o.text), correct: opts.findIndex(o => o.ok) };
+            });
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        }
+
+        function stopTimer() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        function startTimer() {
+            stopTimer();
+            document.getElementById('test-timer').textContent = formatTime(secondsLeft);
+            timerId = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('test-timer').textContent = formatTime(Math.max(secondsLeft, 0));
+                if (secondsLeft <= 0) {
+                    showNotification("Vaqt tugadi. Natijangiz hisoblandi.", "info");
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        function startTest(categoryName) {
+            currentTestTitle = categoryName;
+            currentQuestionIndex = 0;
+            selectedAnswers = {};
+            activeQuestions = buildQuestions(categoryName);
+            secondsLeft = activeQuestions.length * SECONDS_PER_QUESTION;
+            document.getElementById('test-category-title').textContent = categoryName;
+            document.getElementById('question-card').classList.remove('hidden');
+            document.getElementById('result-box').classList.add('hidden');
+            switchTab('test-session');
+            renderQuestion();
+            startTimer();
+        }
+
+        function renderQuestion() {
+            const q = activeQuestions[currentQuestionIndex];
+            document.getElementById('question-counter').textContent = `${currentQuestionIndex + 1}-savol / ${activeQuestions.length}`;
+            document.getElementById('question-text').textContent = q.question;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = selectedAnswers[currentQuestionIndex] === idx;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-2xl border transition-all text-sm font-medium flex items-center justify-between ${
+                    isSelected
+                        ? 'bg-orange-500/10 border-orange-500 text-white shadow-md'
+                        : 'bg-slate-800/60 border-slate-700/80 text-slate-200 hover:bg-slate-800 hover:border-slate-600'
+                }`;
+                btn.innerHTML = `
+                    <span></span>
+                    <span class="w-6 h-6 rounded-full border ${isSelected ? 'border-orange-500 bg-orange-500 text-white' : 'border-slate-600'} flex items-center justify-center text-xs">
+                        ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                    </span>
+                `;
+                btn.firstElementChild.textContent = opt;
+                btn.onclick = () => {
+                    selectedAnswers[currentQuestionIndex] = idx;
+                    renderQuestion();
+                };
+                container.appendChild(btn);
+            });
+
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            document.getElementById('next-btn').textContent =
+                currentQuestionIndex === activeQuestions.length - 1 ? "Testni yakunlash" : "Keyingi savol";
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < activeQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                finishTest();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function finishTest() {
+            stopTimer();
+            const total = activeQuestions.length;
+            let correct = 0;
+            activeQuestions.forEach((q, i) => {
+                if (selectedAnswers[i] === q.correct) correct++;
+            });
+            const answered = Object.keys(selectedAnswers).length;
+            const points = correct * POINTS_PER_CORRECT;
+            const percent = total ? Math.round((correct / total) * 100) : 0;
+
+            stats.points += points;
+            stats.tests += 1;
+            saveStats();
+            renderStats();
+
+            document.getElementById('result-correct').textContent = `${correct} / ${total}`;
+            document.getElementById('result-percent').textContent = percent + '%';
+            document.getElementById('result-points').textContent = '+' + points;
+            document.getElementById('result-summary').textContent =
+                answered < total ? `${total - answered} ta savolga javob berilmadi.` : "Barcha savollarga javob berdingiz.";
+            document.getElementById('question-card').classList.add('hidden');
+            document.getElementById('result-box').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function applyTelegramUser() {
+            const tg = window.Telegram && window.Telegram.WebApp;
+            if (!tg) return;
+            try {
+                tg.ready();
+                tg.expand();
+            } catch (e) {}
+            const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+            if (!user || !user.first_name) return;
+            const first = user.first_name;
+            const short = user.last_name ? `${first} ${user.last_name.charAt(0)}.` : first;
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            while (walker.nextNode()) nodes.push(walker.currentNode);
+            nodes.forEach(n => {
+                if (n.nodeValue.includes('Sardor')) {
+                    n.nodeValue = n.nodeValue.replace(/Sardor B\./g, short).replace(/Sardor/g, first);
+                }
+            });
+            if (user.photo_url) {
+                document.querySelectorAll('img[alt="Avatar"]').forEach(img => { img.src = user.photo_url; });
+            }
+        }
+
+        renderStats();
+        applyTelegramUser();
+    </script>
+</body>
 </html>
