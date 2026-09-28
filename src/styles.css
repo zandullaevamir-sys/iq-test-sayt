@@ -19,12 +19,14 @@ html, body, #root {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background:
     radial-gradient(circle at top, rgba(59, 130, 246, 0.28), transparent 40%),
     linear-gradient(135deg, #020817 0%, #0f172a 50%, #111827 100%);
+  padding: 12px;
 }
 
 button {
@@ -34,19 +36,20 @@ button {
 .page-wrap {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 0;
 }
 
 .card {
   width: min(100%, 760px);
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(15, 23, 42, 0.82);
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 24px;
   box-shadow: 0 20px 60px rgba(2, 6, 23, 0.45);
-  padding: 28px;
+  padding: 20px 16px;
   backdrop-filter: blur(12px);
 }
 
@@ -56,14 +59,14 @@ button {
   justify-content: space-between;
   gap: 12px;
   color: #cbd5e1;
-  font-size: 14px;
-  margin-bottom: 16px;
+  font-size: 13px;
+  margin-bottom: 14px;
 }
 
 .eyebrow {
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: #93c5fd;
 }
@@ -74,7 +77,7 @@ button {
   border-radius: 999px;
   overflow: hidden;
   background: rgba(148, 163, 184, 0.15);
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .progress-bar {
@@ -85,27 +88,29 @@ button {
 }
 
 .quiz-card h2 {
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-size: clamp(1.3rem, 5vw, 2.1rem);
   line-height: 1.35;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   color: #f8fafc;
 }
 
 .options {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .option {
   width: 100%;
   text-align: left;
-  padding: 16px 18px;
+  padding: 16px 14px;
   border-radius: 16px;
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(15, 23, 42, 0.45);
   color: #f8fafc;
   cursor: pointer;
+  min-height: 52px;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  font-size: 1rem;
 }
 
 .option:hover:not(:disabled) {
@@ -130,17 +135,17 @@ button {
 
 .result-card {
   text-align: center;
-  padding: 36px 28px;
+  padding: 26px 18px;
 }
 
 .result-card h1 {
-  font-size: clamp(1.9rem, 3vw, 3rem);
+  font-size: clamp(1.8rem, 7vw, 2.8rem);
   margin: 12px 0 18px;
 }
 
 .score-ring {
-  width: 180px;
-  height: 180px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   background: linear-gradient(135deg, #3b82f6, #22d3ee);
   margin: 18px auto 20px;
@@ -152,20 +157,20 @@ button {
 }
 
 .score-ring span {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 800;
   line-height: 1;
 }
 
 .score-ring small {
-  font-size: 1rem;
+  font-size: 0.9rem;
   opacity: 0.9;
 }
 
 .result-text {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #e2e8f0;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .primary-btn {
@@ -173,10 +178,12 @@ button {
   color: white;
   border: none;
   border-radius: 14px;
-  padding: 14px 24px;
+  padding: 14px 20px;
   cursor: pointer;
+  width: 100%;
   font-weight: 700;
   transition: opacity 0.2s ease, transform 0.2s ease;
+  min-height: 52px;
 }
 
 .primary-btn:hover {
@@ -184,18 +191,21 @@ button {
   transform: translateY(-1px);
 }
 
-@media (max-width: 640px) {
+@media (min-width: 640px) {
+  body {
+    padding: 18px;
+  }
+
   .card {
-    padding: 22px 18px;
-    border-radius: 18px;
+    padding: 26px 24px;
   }
 
   .option {
-    padding: 14px 16px;
+    padding: 16px 18px;
   }
 
-  .score-ring {
-    width: 150px;
-    height: 150px;
+  .primary-btn {
+    width: auto;
+    min-width: 220px;
   }
 }
